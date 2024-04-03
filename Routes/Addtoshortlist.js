@@ -1,22 +1,18 @@
-let express = require('express');
-let mongodb = require('mongodb');
-let client = mongodb.MongoClient;
+const express = require('express');
+const { getCollection } = require('./dbconnection');
 
-let UpdateRecords = express.Router().put('/:id',(req,res)=>{
-    client.connect("mongodb://localhost:27017/employee",(err,db)=>{
-        if(err){
-            throw err
-        }else{
-            db.collection('employeeDetails').updateOne({"Employee ID":parseInt(req.params.id)},{$set:{shortlisted:true}}  ,(err,result)=>{
-                if (err){
-                    throw err
-                }else{
-                    res.send(result)
-                }
-            })
-        }
-    })
+const Addtoshortlist = express.Router().put('/:id', async (req, res) => {
+    try {
+        const collection = getCollection();
+        const result = await collection.updateOne(
+            {"Employee ID": parseInt(req.params.id)},
+            {$set: {shortlisted: true}}
+        );
+        res.send(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
-})
-
-module.exports = UpdateRecords;
+module.exports = Addtoshortlist;

@@ -1,69 +1,36 @@
-let express = require('express');
-let mongodb = require('mongodb');
-let client = mongodb.MongoClient;
+const express = require('express');
+const { getDB, getCollection} = require('./dbconnection')
 
-let fetchbasedOnCondition = express.Router().get("/:boxname", (req, res) => {
-    let { boxname } = req.params;
-    let box = boxname.toString();
-    console.log(boxname)
+const fetchbasedOnCondition = express.Router().get("/:boxname", async (req, res) => {
+    try {
+        const { boxname } = req.params;
+        const box = boxname.toString();
+        console.log(boxname);
 
-    client.connect("mongodb://localhost:27017/employee", (err, db) => {
-        if (err) {
-            throw err;
+        const collection = getCollection();
+        
+        let query = {};
+        query[box] = { $exists: true }; // Constructing the query object dynamically
+        
+        let result;
+
+        if (box == "Total Employees") {
+            result = await collection.find().toArray();
+        } else if (box == "Total Customers") {
+            result = await collection.find({ "Customer ID": { $exists: true }}).toArray();
+        } else if (box == "selectedlist") {
+            result = await collection.find({ "shortlisted": true}).toArray();
+        } else if (box == "removedlist") {
+            result = await collection.find({ "shortlisted": false}).toArray();
         } else {
-            let query = {};
-            query[box] = { $exists: true }; // Constructing the query object dynamically
-          
-            if (box == "Total Employees") {
-
-                db.collection("employeeDetails").find().toArray((err, result) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        res.send(result);
-                    }
-                });
-            }   else if (box == "Total Customers") {
-
-                db.collection("employeeDetails").find({ "Customer ID": { $exists: true }}).toArray((err, result) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        res.send(result);
-                    }
-                });
-            } else if (box == "seletedlist") {
-
-                db.collection("employeeDetails").find({ "shortlisted": true}).toArray((err, result) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        res.send(result);
-                    }
-                });
-            }
-            else if (box == "removedlist") {
-
-                db.collection("employeeDetails").find({ "shortlisted": false}).toArray((err, result) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        res.send(result);
-                    }
-                });
-            }
-            else {
-
-                db.collection("employeeDetails").find(query).toArray((err, result) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        res.send(result);
-                    }
-                });
-            }
+            result = await collection.find(query).toArray();
         }
-    });
+
+        res.send(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
 module.exports = fetchbasedOnCondition;

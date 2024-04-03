@@ -1,10 +1,10 @@
 const express = require('express');
 const { getCollection } = require('./dbconnection');
 
-const fetch = express.Router().get("/", async (req, res) => {
+const fetch = express.Router().get("/:id", async (req, res) => {
     try {
         const collection = getCollection();
-        const result = await collection.find().toArray();
+        const result = await collection.find({"Employee ID" : parseInt(req.params.id)}).toArray();
         res.send(result);
     } catch (err) {
         console.error(err);

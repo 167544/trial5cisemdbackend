@@ -1,10 +1,11 @@
 const express = require('express');
 const { getCollection } = require('./dbconnection');
 
-const fetch = express.Router().get("/", async (req, res) => {
+const deleteRecord = express.Router().delete("/:id", async (req, res) => {
     try {
         const collection = getCollection();
-        const result = await collection.find().toArray();
+        const result = await collection.deleteOne({"Employee ID" : parseInt(req.params.id)});
+        console.log("deleted")
         res.send(result);
     } catch (err) {
         console.error(err);
@@ -12,4 +13,4 @@ const fetch = express.Router().get("/", async (req, res) => {
     }
 });
 
-module.exports = fetch;
+module.exports = deleteRecord;
