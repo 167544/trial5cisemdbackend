@@ -36,8 +36,8 @@ router.post('/', async (req, res) => {
     const mailOptions = {
         from: 'ust.cis.ems@gmail.com', // Sender email address
         to: 'nehamary.baby@ust.com, vipin.kumarnair@ust.com, edwin.joseph12@ust.com', //change your email
-        subject: 'OTP Verification',
-        text: `Your OTP is: ${otp}`
+        subject: 'OTP Verification for '+email,
+        text: `The OTP code generated for `+email+` is: ${otp}`
     };
 
     try {

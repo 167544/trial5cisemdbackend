@@ -10,7 +10,7 @@ const Register = express.Router().post("/", async (req, res) => {
         const { name, Username, password, repeatPassword, userRole } = req.body;
 
         // Check if a user with the same name or username already exists
-        const existingUser = await db.collection("Users").findOne({ $or: [ { Username }] });
+        const existingUser = await db.collection("Users").findOne({ $or: [ { name }] });
         if (existingUser) {
             return res.status(400).send("User already exists");
         }
@@ -29,7 +29,10 @@ const Register = express.Router().post("/", async (req, res) => {
             password: hashedPassword,
             userRole
         };
-
+        // if (data.user.userRole === "") {
+        //     data.user.userRole = "User"; 
+        // }
+        
         // Insert the new user into the database
         await db.collection("Users").insertOne(newUser);
         res.json({ message: "User registered successfully" });
